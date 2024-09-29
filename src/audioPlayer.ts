@@ -46,7 +46,7 @@ export default class AudioPlayer{
     console.log('audio load finished')
   }
 
-  playSound(name:EffectType){
+  playSound(name:EffectType, volume:number = 1){
     const soundBuffer = this.audioMap.get(name);
     const audioTrack = this.audioTracks.get(name);
     if( !name || !soundBuffer || !audioTrack) {
@@ -57,7 +57,7 @@ export default class AudioPlayer{
       }
       audioTrack.setBuffer(soundBuffer);
       audioTrack.setLoop(false);
-      audioTrack.setVolume(1);
+      audioTrack.setVolume(volume);
       audioTrack.play();
     }
   }

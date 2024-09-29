@@ -9,6 +9,7 @@ import {
   OrthographicCamera,
   Clock,
   AudioListener,
+  Vector2
 } from "three";
 import CubeScreen from "./screen";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
@@ -39,6 +40,11 @@ class Main {
 
   clock: Clock;
   gameTime:number;
+
+  touchStart:Vector2;
+  touchEnd:Vector2;
+
+  
   constructor() {
     this.initViewport();
   }
@@ -92,17 +98,17 @@ class Main {
     this.cube = this.createCubeMesh();
     const screenWidth = 12;
     const screenHeight = 24;
-    const blockWidth = 1;
-    const blockPadding = 0.1;
+    const blockWidth = 0.8;
+    const blockPadding = 0.05;
+    
     const screen = new CubeScreen(screenWidth,screenHeight,blockWidth,blockPadding,PixelPerUnit);
-    screen.renderObj.position.set(-screenWidth/2+blockWidth/2,basicHeight/2-4,0);
+    screen.renderObj.position.set(-(screenWidth*(blockWidth+blockPadding))/2 + blockWidth/2,basicHeight/2 - 4,0);
     this.screen = screen;
     this.scene.add(screen.renderObj);
     
-
     const score = new Score(6);
     score.updateNumber(0);
-    score.renderObj.position.set(2, basicHeight/2-3, 0);
+    score.renderObj.position.set(0, basicHeight/2-3, 0);
     score.renderObj.scale.set(0.3,0.3,0.3);
     this.scene.add(score.renderObj);
     this.tetris = new Tetris(screenWidth,screenHeight,listener);
@@ -124,6 +130,30 @@ class Main {
     this.addEvent();
   }
 
+  actionWhenTouchMove(moveVec:Vector2){
+    const absX = Math.abs(moveVec.x);
+    const absY = Math.abs(moveVec.y);
+    if( absX > absY ) {
+      // move left or right
+      if( moveVec.x < 0 ) {
+        // move left;
+        this.tetris.actionMoveLeft();
+      } else {
+        // move right
+        this.tetris.actionMoveRight();
+      }
+    } else {
+      if( moveVec.y > 0) {
+        // move down
+        this.tetris.actionMoveDown();
+      } else {
+        // move down or rotate
+        this.tetris.actionRotate();
+      }
+      
+    }
+  }
+
   setAudio(){
     const listener = new AudioListener();
     this.camera.add(listener);
@@ -134,6 +164,7 @@ class Main {
   addEvent(){
     window.addEventListener("keydown",(e)=>{
       const key = e.key.toUpperCase();
+      console.log('key down')
       if( e.code === "Space"){
         this.tetris.actionRotate();
         return;
@@ -141,6 +172,7 @@ class Main {
       switch(key){
         case 'A':
           this.tetris.actionMoveLeft();
+          
           break;
         case 'S':
           this.tetris.actionMoveDown();
@@ -159,12 +191,41 @@ class Main {
           // this.tetris.reStart();
         } else {
           this.tetris.reStart();
+          if( !document.fullscreenElement ){
+            document.documentElement.requestFullscreen();
+          } else {
+            document.exitFullscreen();
+          }
         }
         
         
         // startButton.hidden = true;
       })
     }
+    this.addTouchEvent();
+  }
+
+  addTouchEvent(){
+    // when touch end to top , rotate
+    window.document.addEventListener("touchstart",(e)=>{
+      // will store touch start event position and end direction
+      console.log("touch start",e)
+      for( let i = 0; i < e.touches.length; i++ ) {
+        if( i === 0 ) {
+          this.touchStart = new Vector2(e.touches[i].clientX, e.touches[i].clientY);
+        }
+      }
+    })
+
+    window.document.addEventListener("touchend",(e)=>{
+      for( let i = 0; i < e.changedTouches.length; i++ ) {
+        if( i === 0 ) {
+          this.touchEnd = new Vector2(e.changedTouches[i].clientX, e.changedTouches[i].clientY);
+        }
+      }
+      const moveVec = this.touchEnd.clone().sub(this.touchStart);
+      this.actionWhenTouchMove(moveVec);
+    })
   }
 
   /** Renders the scene */

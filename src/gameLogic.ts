@@ -200,7 +200,7 @@ export default class Tetris extends EventDispatcher{
   currentBlockMoveDown(){
     // check if could move down check out this first
     if( this.preCheckCouldMoveDown() ) {
-      this.audioPlayer.playSound(EffectType.Move);
+      // this.audioPlayer.playSound(EffectType.Move,0.5);
       this.controlBlock.position.y += 1;
     } else {
       for( let position of this.controlBlock.getCurrentState() ) {
