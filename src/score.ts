@@ -29,7 +29,9 @@ export default class Score {
   /** update number */
   updateNumber(num:number){
     const len = Math.ceil(Math.log(num+1)/Math.LN10);
-    console.log(len);
+    for( let i = 0; i < this.numbers.length; i++ ) {
+      this.numbers[i].number = 0;
+    }
     for( let i = 0; i < len; i++ ){
       const index = this.totalLength - 1 - i;
       const digit = Math.floor(num / Math.pow(10,i)) % 10;

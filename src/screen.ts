@@ -23,11 +23,13 @@ export default class CubeScreen{
   paddingWidth: number;
   private colorAttribute: Float32BufferAttribute;
   private transparentAttribute: Float32BufferAttribute;
-  constructor(width:number, height:number, blockWidth:number = 1, paddingWidth:number = 0.){
+  blockMaterial:PointsMaterial;
+  pixelPerUnit:number;
+  constructor(width:number, height:number, blockWidth:number = 1, paddingWidth:number = 0., pixelPerUnit:number = 1){
     const totalNumber = width * height;
     this.blockWidth = blockWidth;
     this.paddingWidth = paddingWidth;
-
+    this.pixelPerUnit = pixelPerUnit;
     this.columns = width;
     this.rows = height;
     
@@ -60,7 +62,7 @@ export default class CubeScreen{
     this.transparentAttribute = new Float32BufferAttribute(transparency, 1).setUsage( DynamicDrawUsage )
     pointsGeometry.setAttribute('vAlpha', this.transparentAttribute);
     const pointsMaterial = new PointsMaterial({
-      size: 22,
+      size: this.blockWidth * this.pixelPerUnit,// in pixel
       vertexColors: VertexColors,
       // sizeAttenuation:false,
       transparent: true,
@@ -73,8 +75,14 @@ export default class CubeScreen{
       shader.fragmentShader = shader.fragmentShader.replace("#include <color_fragment>","#ifdef USE_COLOR\n\tdiffuseColor.rgba *= vColor;\n#endif")
 
     }
+    this.blockMaterial = pointsMaterial;
     const points = new Points(pointsGeometry, pointsMaterial);
     this.renderObj = points;
+  }
+
+  resetPixelSize(pixelPerUnit:number){
+    this.blockMaterial.size = this.blockWidth * pixelPerUnit;
+    this.blockMaterial.needsUpdate = true;
   }
 
   /** this function will update the color attribute accroding to the source data */

@@ -47,7 +47,7 @@ export default class Tetris extends EventDispatcher{
     this.setAudioListener(audioListener);
   }
   start(){
-    
+    console.log('this.score',this.score)
     this.scoreChangeEvent()
     this.audioPlayer.playSound(EffectType.Start);
     setTimeout(()=>{
@@ -222,6 +222,8 @@ export default class Tetris extends EventDispatcher{
   }
 
   scoreChangeEvent(){
+    console.log('score changed');
+    
     this.dispatchEvent({type:"scoreChanged", message:{
       score:this.score
     }})
@@ -235,7 +237,7 @@ export default class Tetris extends EventDispatcher{
     }
     
     this.score += (removeIndexGroup.length * 100);
-    
+
     this.scoreChangeEvent();
     let newStableBufferGroup = new Array(this.width * this.height).fill(0);
     let newLineIndex = this.height-1;

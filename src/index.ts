@@ -54,9 +54,13 @@ class Main {
 
     // Init camera.
     const aspect = window.innerWidth / window.innerHeight;
+    const windowHeight = window.innerHeight;
+    
     // this.camera = new PerspectiveCamera(60, aspect, 0.1, 100);
 
     const basicHeight = 32;
+    const PixelPerUnit = windowHeight/basicHeight;
+    console.log('pixelPerUnit',PixelPerUnit)
     const basicWidth = basicHeight * aspect;
     this.camera = new OrthographicCamera(-basicWidth/2,basicWidth/2,basicHeight/2,-basicHeight/2,0.1,20);
     this.camera.position.z = 10;
@@ -87,9 +91,11 @@ class Main {
     // Add test mesh.
     this.cube = this.createCubeMesh();
     const screenWidth = 12;
-    const screenHeight = 18;
-    const screen = new CubeScreen(screenWidth,screenHeight);
-    screen.renderObj.position.set(-screenWidth/2+1,basicHeight/2-4,0);
+    const screenHeight = 24;
+    const blockWidth = 1;
+    const blockPadding = 0.1;
+    const screen = new CubeScreen(screenWidth,screenHeight,blockWidth,blockPadding,PixelPerUnit);
+    screen.renderObj.position.set(-screenWidth/2+blockWidth/2,basicHeight/2-4,0);
     this.screen = screen;
     this.scene.add(screen.renderObj);
     
@@ -147,7 +153,6 @@ class Main {
     const startButton = document.getElementById("startButton");
     if( startButton ) {
       startButton.addEventListener("click",()=>{
-        console.log("start");
         if( this.tetris.gameState === "process" ) {
           
           // this.clock.start();
@@ -200,17 +205,19 @@ class Main {
     }
     if( this.camera instanceof OrthographicCamera ) {
       const aspect = window.innerWidth / window.innerHeight;
-    // this.camera = new PerspectiveCamera(60, aspect, 0.1, 100);
 
       const basicHeight = 32;
+      const PixelPerUnit = window.innerHeight/basicHeight;
       const basicWidth = basicHeight * aspect;
       this.camera.left = -basicWidth/2;
       this.camera.right = basicWidth/2;
       this.camera.top = basicHeight/2;
       this.camera.bottom = -basicHeight/2;
       this.camera.updateProjectionMatrix();
+      this.screen.resetPixelSize(PixelPerUnit);
     }
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(window.devicePixelRatio)
     this.render();
   }
 
