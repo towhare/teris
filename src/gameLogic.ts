@@ -235,6 +235,7 @@ export default class Tetris extends EventDispatcher{
     }
     
     this.score += (removeIndexGroup.length * 100);
+    
     this.scoreChangeEvent();
     let newStableBufferGroup = new Array(this.width * this.height).fill(0);
     let newLineIndex = this.height-1;
