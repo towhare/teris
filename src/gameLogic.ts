@@ -4,9 +4,9 @@
  */
 import Block from './block';
 import { EffectType } from './constant';
-import { AudioListener } from "three";
+import { AudioListener,EventDispatcher } from "three";
 import AudioPlayer from './audioPlayer';
-export default class Tetris{
+export default class Tetris extends EventDispatcher{
   width: number;
   height: number;
   // drop speed 2 block per second?
@@ -30,7 +30,10 @@ export default class Tetris{
 
   audioPlayer: AudioPlayer;
 
+  score: number;
+
   constructor(width: number, height:number, audioListener: AudioListener){
+    super();
     this.width = width;
     this.height = height;
     this.stableBlockBuffer = new Array(width * height).fill(0);
@@ -40,11 +43,12 @@ export default class Tetris{
     this.dropTime = 0.7;
     this.gameState = "end";
     this.moveDownTime = 0;
+    this.score = 0;
     this.setAudioListener(audioListener);
   }
   start(){
     
-    
+    this.scoreChangeEvent()
     this.audioPlayer.playSound(EffectType.Start);
     setTimeout(()=>{
       this.gameState = "process";
@@ -94,7 +98,8 @@ export default class Tetris{
 
     // When block was created ,check if this block clid any stable block, if current block intersect with any stable block, game over.
     if( this.checkBlockIntersection() ) {
-      this.gameState = "end"
+      this.gameState = "end";
+      
       this.audioPlayer.playSound(EffectType.Lose);
       console.log('game over');
       this.updateCurrentBlock();
@@ -216,12 +221,21 @@ export default class Tetris{
     // if could not move down, then this block was set create new block and change the stable block buffer
   }
 
+  scoreChangeEvent(){
+    this.dispatchEvent({type:"scoreChanged", message:{
+      score:this.score
+    }})
+  }
+
   stableBlockRemove(){
     // find the remove group lines
     const removeIndexGroup = this.findRemoveLine();
     if( removeIndexGroup.length <= 0 ) {
       return false;
     }
+    
+    this.score += (removeIndexGroup.length * 100);
+    this.scoreChangeEvent();
     let newStableBufferGroup = new Array(this.width * this.height).fill(0);
     let newLineIndex = this.height-1;
     for( let i = this.height-1; i > 0; i-- ) {
@@ -306,6 +320,7 @@ export default class Tetris{
     this.stableBlockBuffer.fill(0);
     this.movingBlockBuffer.fill(0);
     this.outputBlockBuffer.fill(0);
+    this.score = 0;
   }
 
   reStart(){

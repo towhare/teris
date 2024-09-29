@@ -93,14 +93,18 @@ class Main {
     this.screen = screen;
     this.scene.add(screen.renderObj);
     
-    const num = new DigitalNumber();
-    num.group.position.set(2,-9,0);
-    this.scene.add(num.group);
 
-    const score = new Score(5);
+    const score = new Score(6);
+    score.updateNumber(0);
+    score.renderObj.position.set(2, basicHeight/2-3, 0);
+    score.renderObj.scale.set(0.3,0.3,0.3);
     this.scene.add(score.renderObj);
-    num.updateNumber(1);
     this.tetris = new Tetris(screenWidth,screenHeight,listener);
+
+    this.tetris.addEventListener("scoreChanged",(e)=>{
+      const newScore = e.message.score;
+      score.updateNumber(newScore)
+    })
     this.renderer.setAnimationLoop(() => this.animate()); // uncomment if you want to use the animation loop
     window.addEventListener("blur",()=>{
       this.pause = true;
