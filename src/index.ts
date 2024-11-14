@@ -43,7 +43,16 @@ class Main {
 
   touchStart:Vector2;
   touchEnd:Vector2;
-
+  
+  movedown:boolean;
+  moveleft:boolean;
+  moveright:boolean;
+  rotate: boolean;
+  moveButtonClock: Clock;
+  moveActionCooldownTime: number;
+  btnActiveTimeMove:number;
+  btnActiveTimeRotate:number;
+  rotateActionCooldownTime:number
   
   constructor() {
     this.initViewport();
@@ -51,6 +60,11 @@ class Main {
 
   /** Initialize the viewport */
   public initViewport() {
+    this.btnActiveTimeMove = 0;
+    this.btnActiveTimeRotate = 0;
+    this.moveActionCooldownTime = 0.1;
+    this.rotateActionCooldownTime = 0.2;
+    this.moveButtonClock = new Clock();
     this.pause = false;
     this.clock = new Clock();
     // Init scene.
@@ -128,6 +142,7 @@ class Main {
       this.clock.start();
     });
     this.addEvent();
+    this.addUIButtonEvent();
   }
 
   actionWhenTouchMove(moveVec:Vector2){
@@ -189,12 +204,13 @@ class Main {
           
           // this.clock.start();
           // this.tetris.reStart();
+          document.exitFullscreen();
         } else {
           this.tetris.reStart();
           if( !document.fullscreenElement ){
             document.documentElement.requestFullscreen();
           } else {
-            document.exitFullscreen();
+            // document.exitFullscreen();
           }
         }
         
@@ -202,7 +218,7 @@ class Main {
         // startButton.hidden = true;
       })
     }
-    this.addTouchEvent();
+    // this.addTouchEvent();
   }
 
   addTouchEvent(){
@@ -228,6 +244,67 @@ class Main {
     })
   }
 
+  addUIButtonEvent(){
+    const upBtn = window.document.getElementById("up");
+    const downBtn = window.document.getElementById("down");
+    const leftBtn = window.document.getElementById("left");
+    const rightBtn = window.document.getElementById("right");
+    const ABtn = window.document.getElementById("btnA");
+    if( upBtn && downBtn && leftBtn && rightBtn && ABtn){
+      upBtn.addEventListener('pointerdown',(e)=>{
+        // this.mov = true;
+      })
+      upBtn.addEventListener("pointerout",()=>{
+        // this.movedown = false;
+      })
+
+      downBtn.addEventListener("pointerdown",()=>{
+        this.movedown = true;
+        this.tetris.actionMoveDown();
+        this.btnActiveTimeMove = 0;
+      })
+      downBtn.addEventListener("pointerup",()=>{
+        this.movedown =  false;
+      });
+      downBtn.addEventListener("pointerout",()=>{
+        this.movedown = false;
+      });
+      leftBtn.addEventListener("pointerdown",()=>{
+        this.moveleft = true;
+        this.tetris.actionMoveLeft();
+        this.btnActiveTimeMove = 0;
+      });
+      leftBtn.addEventListener("pointerout",()=>{
+        this.moveleft = false;
+      });
+      leftBtn.addEventListener("pointerup",()=>{
+        this.moveleft = false;
+      });
+      rightBtn.addEventListener("pointerdown",()=>{
+        this.moveright = true;
+        this.tetris.actionMoveRight();
+        this.btnActiveTimeMove = 0;
+      });
+      rightBtn.addEventListener("pointerout",()=>{
+        this.moveright = false;
+      })
+      rightBtn.addEventListener("pointerup",()=>{
+        this.moveright = false;
+      })
+      ABtn.addEventListener("pointerdown",()=>{
+        this.rotate = true;
+        this.tetris.actionRotate();
+        this.btnActiveTimeRotate = 0;
+      })
+      ABtn.addEventListener("pointerup",()=>{
+        this.rotate = false;
+      })
+      ABtn.addEventListener("pointerout",()=>{
+        this.rotate = false;
+      })
+    }
+  }
+
   /** Renders the scene */
   public render() {
     this.renderer.render(this.scene, this.camera);
@@ -243,9 +320,45 @@ class Main {
 
   }
 
+  actionUpdate(delta:number){
+    this.btnActiveTimeMove += delta;
+    this.btnActiveTimeRotate += delta;
+    if( this.movedown ) {
+      if( this.btnActiveTimeMove > this.moveActionCooldownTime){
+        this.tetris.actionMoveDown();
+        this.btnActiveTimeMove = 0;
+      } else {
+        
+      }
+    }
+    if( this.moveleft ) {
+      if( this.btnActiveTimeMove > this.moveActionCooldownTime ) {
+        this.tetris.actionMoveLeft();
+        this.btnActiveTimeMove = 0;
+      }
+    }
+    if( this.moveright ) {
+      if( this.btnActiveTimeMove > this.moveActionCooldownTime ) {
+        this.tetris.actionMoveRight();
+        this.btnActiveTimeMove = 0;
+      } else {
+
+      }
+    }
+    if( this.rotate ) {
+      if( this.btnActiveTimeRotate > this.rotateActionCooldownTime ) {
+        this.tetris.actionRotate();
+        console.log('this.btnActiveTimeRotate',this.btnActiveTimeRotate)
+        this.btnActiveTimeRotate = 0;
+        console.log('this.btnActiveTimeRotate',this.btnActiveTimeRotate)
+      }
+    }
+  }
+
   logicUpdate(){
     const delta = this.clock.getDelta();
     this.gameTime += delta;
+    this.actionUpdate(delta);
     
     const currentTime = this.clock.getElapsedTime();
     this.screen.setAlpha(this.tetris.outputBlockBuffer)

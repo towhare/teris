@@ -181,6 +181,7 @@ export default class Tetris extends EventDispatcher{
       this.audioPlayer.playSound(EffectType.Move);
       this.controlBlock.position.x -= 1;
     } else {
+      console.log('move left play block')
       this.audioPlayer.playSound(EffectType.Block);
     }
   }
@@ -191,6 +192,8 @@ export default class Tetris extends EventDispatcher{
       this.audioPlayer.playSound(EffectType.Move);
       this.controlBlock.position.x += 1;
     } else {
+      
+      console.log('moveright block')
       this.audioPlayer.playSound(EffectType.Block);
     }
   }
@@ -213,6 +216,7 @@ export default class Tetris extends EventDispatcher{
       if( removed ) {
         this.audioPlayer.playSound(EffectType.Score);
       } else {
+        // console.log('play block')
         this.audioPlayer.playSound(EffectType.Block);
       }
       // create new block
@@ -284,7 +288,7 @@ export default class Tetris extends EventDispatcher{
       this.audioPlayer.playSound(EffectType.Move);
       this.controlBlock.rotate();
     } else {
-      this.audioPlayer.playSound(EffectType.Block);
+      // this.audioPlayer.playSound(EffectType.Block);
       // Could not rotate may play some sound effect
     }
   }

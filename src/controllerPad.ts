@@ -3,3 +3,6 @@
  * 
  */
 
+export default class controllPad{
+  
+}

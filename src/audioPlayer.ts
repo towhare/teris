@@ -49,10 +49,13 @@ export default class AudioPlayer{
   playSound(name:EffectType, volume:number = 1){
     const soundBuffer = this.audioMap.get(name);
     const audioTrack = this.audioTracks.get(name);
+    console.log('play sound: type',name)
     if( !name || !soundBuffer || !audioTrack) {
       console.warn("Can not get audio Buffer",name)
     } else {
+      console.log('audio')
       if( audioTrack.isPlaying ) {
+        console.log('audio is')
         audioTrack.stop();
       }
       audioTrack.setBuffer(soundBuffer);
